@@ -1,5 +1,5 @@
 from datetime import datetime
-from backend.db.connection import get_server_connection, get_connection, ensure_database_exists
+from db.connection import get_server_connection, get_connection, ensure_database_exists
 
 
 def init_db():
