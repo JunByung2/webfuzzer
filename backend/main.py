@@ -1,5 +1,5 @@
 import json
-from backend.crawler.crawler import BFSCrawler
+from crawler.crawler import BFSCrawler
 from urllib.parse import urlparse
 
 def crawl(start_url, target_domain=None, progress_callback=None):
