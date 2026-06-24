@@ -23,7 +23,7 @@ import time
 import urllib3
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from requests.adapters import HTTPAdapter
-from backend.config.config import REQUEST_TIMEOUT, MAX_RETRIES
+from config.config import REQUEST_TIMEOUT, MAX_RETRIES
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
