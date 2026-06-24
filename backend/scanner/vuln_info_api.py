@@ -5,7 +5,7 @@ scanner/vuln_info_api.py
 import json
 import os
 from flask import Blueprint, jsonify, request
-from backend.scanner.vuln_analyzer import analyze_vulnerabilities
+from scanner.vuln_analyzer import analyze_vulnerabilities
 
 vuln_info_bp = Blueprint("vuln_info", __name__)
 
