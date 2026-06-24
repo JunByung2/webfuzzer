@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from .main import crawl
+from main import crawl
 from datetime import datetime
 import threading
 import requests as req_lib
