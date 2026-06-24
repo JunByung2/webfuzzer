@@ -27,7 +27,7 @@ import requests
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from requests import Response
 from requests.adapters import HTTPAdapter
-from backend.config.config import (
+from config.config import (
     REQUEST_TIMEOUT,   # 8  — 요청 타임아웃 (초)
     USER_AGENT,        # Mozilla/5.0 ...
 )
