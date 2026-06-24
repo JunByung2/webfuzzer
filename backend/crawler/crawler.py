@@ -2,9 +2,9 @@ from collections import deque
 from urllib.parse import urlparse, parse_qs, urljoin
 from bs4 import BeautifulSoup
 
-from backend.crawler.url_filter import URLFilter
-from backend.crawler.http_client import fetch_url
-from backend.config.config import MAX_DEPTH, MAX_PAGES
+from crawler.url_filter import URLFilter
+from crawler.http_client import fetch_url
+from config.config import MAX_DEPTH, MAX_PAGES
 
 class BFSCrawler:
     def __init__(self, start_url, target_domain, max_depth=MAX_DEPTH):
