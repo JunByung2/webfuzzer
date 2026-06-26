@@ -40,6 +40,46 @@ def calculate_hybrid_progress(target_url, phase, internal_p):
 
 
 # ══════════════════════════════════════════════════════════════════
+# DB 저장 함수
+# ══════════════════════════════════════════════════════════════════
+
+def save_scan_to_db(data):
+    vuln_list = data.get("vuln_results") or []
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO scans (target_url, status, scan_type, progress, page_count, duration, start_time, end_time, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (
+            data.get("target_url", "unknown"),
+            "COMPLETED", "FULL", 100,
+            data.get("page_count"),
+            data.get("duration"),
+            datetime.fromisoformat(data["start_time"]) if data.get("start_time") else None,
+            datetime.fromisoformat(data["end_time"]) if data.get("end_time") else None,
+        ))
+        scan_id = cursor.lastrowid
+        for vuln in vuln_list:
+            cursor.execute("""
+                INSERT INTO results (scan_id, url, vulnerability, severity, payload, parameter, evidence, source, is_vulnerable, scanned_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                scan_id,
+                vuln.get("url", "N/A"),
+                vuln.get("vuln_type") or vuln.get("vulnerability"),
+                vuln.get("severity"),
+                vuln.get("payload"),
+                vuln.get("parameter"),
+                vuln.get("evidence"),
+                vuln.get("source"),
+                True,
+                datetime.fromisoformat(vuln["scanned_at"]) if vuln.get("scanned_at") else None,
+            ))
+    conn.commit()
+    conn.close()
+
+
+# ══════════════════════════════════════════════════════════════════
 # 백그라운드 스캔
 # ══════════════════════════════════════════════════════════════════
 
@@ -125,13 +165,9 @@ def background_scan(target_url):
 
         # DB 저장
         try:
-            req_lib.post(
-                "http://127.0.0.1:5000/api/results",
-                json={**scan_status[target_url], "target_url": target_url},
-                timeout=10,
-            )
+            save_scan_to_db({**scan_status[target_url], "target_url": target_url})
         except Exception as e:
-            print("DB 전송 실패:", e)
+            print("DB 저장 실패:", e)
 
     except Exception as e:
         import traceback
@@ -257,23 +293,6 @@ def dashboard():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    """
-    대응방안 AI 채팅 엔드포인트
-
-    Request body:
-    {
-        "messages": [{"role": "user"|"assistant", "content": "..."}],
-        "context": {
-            "vuln_type": "xss"|"sqli",
-            "parameter": "searchTerm",
-            "url": "http://...",
-            "payload": "<svg onload=alert(1)>",
-            "severity": "HIGH",
-            "action": "대응방안 action 텍스트",
-            "reason": "대응방안 reason 텍스트"
-        }
-    }
-    """
     data     = request.json or {}
     messages = data.get("messages", [])
     ctx      = data.get("context", {})
